@@ -1,4 +1,8 @@
 // Package echo allows enabling and disabling terminal echo.
+//
+// This implementation is based on the POSIX tcgetattr and tcsetattr functions,
+// which are accessed via cgo, so it will only work on systems that support
+// both cgo and supply those functions.
 package echo
 
 /*
@@ -13,6 +17,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// isatty reports whether desriptor fd is a TTY.  In case of error, the answer
+// is assumed to be false.
 func isatty(fd uintptr) bool { return C.isatty(C.int(fd)) > 0 }
 
 func tcgetattr(fd uintptr) (*C.struct_termios, error) {
