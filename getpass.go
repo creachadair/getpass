@@ -11,9 +11,12 @@ import (
 	"bitbucket.org/creachadair/getpass/echo"
 )
 
-// Readline reads a single line of text from f with echo disabled, returning
+// TTY opens the controlling terminal of the current process if possible.
+func TTY() (*os.File, error) { return os.OpenFile("/dev/tty", os.O_RDWR, 0644) }
+
+// FReadline reads a single line of text from f with echo disabled, returning
 // the line without its trailing newline.
-func Readline(f *os.File) (string, error) {
+func FReadline(f *os.File) (string, error) {
 	fd := f.Fd()
 	if err := echo.Disable(fd); err != nil {
 		return "", err
@@ -27,9 +30,23 @@ func Readline(f *os.File) (string, error) {
 	return rd.Text(), nil
 }
 
-// Prompt prints the given prompt string to os.Stderr, then calls Readline to
-// read a line of text from f with echo disabled.
-func Prompt(prompt string, f *os.File) (string, error) {
-	fmt.Fprint(os.Stderr, prompt)
-	return Readline(f)
+// Readline is a shorthand for FReadline using the TTY.
+func Readline() (string, error) {
+	f, err := TTY()
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	return FReadline(f)
+}
+
+// Prompt prints the prompt string to TTY then calls FReadline.
+func Prompt(prompt string) (string, error) {
+	f, err := TTY()
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	fmt.Fprint(f, prompt)
+	return FReadline(f)
 }
