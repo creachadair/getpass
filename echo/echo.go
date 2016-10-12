@@ -47,7 +47,7 @@ func Enable(fd uintptr) error {
 	if err != nil {
 		return err
 	}
-	info.c_lflag |= termBits
+	info.c_lflag |= termBits | syscall.ECHONL
 	return tcsetattr(fd, info)
 }
 
@@ -61,5 +61,6 @@ func Disable(fd uintptr) error {
 		return err
 	}
 	info.c_lflag &^= termBits
+	info.c_lflag |= syscall.ECHONL
 	return tcsetattr(fd, info)
 }
