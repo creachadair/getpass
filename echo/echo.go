@@ -36,7 +36,7 @@ func tcsetattr(fd uintptr, info *C.struct_termios) error {
 	return nil
 }
 
-const termBits = syscall.ECHO | syscall.ECHOE | syscall.ECHOK | syscall.ECHONL
+const termBits = syscall.ECHO | syscall.ECHOE | syscall.ECHOK
 
 // Enable enables echo for the terminal connected to descriptor fd.
 func Enable(fd uintptr) error {
