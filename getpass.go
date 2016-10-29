@@ -3,10 +3,9 @@
 package getpass
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-
-	"bufio"
 
 	"bitbucket.org/creachadair/getpass/echo"
 )
