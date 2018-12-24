@@ -13,9 +13,9 @@ import (
 // TTY opens the controlling terminal of the current process if possible.
 func TTY() (*os.File, error) { return os.OpenFile("/dev/tty", os.O_RDWR, 0644) }
 
-// FReadline reads a single line of text from f, an open terminal, with echo
-// disabled. The line is returned line without its trailing newline and echo is
-// (re)enabled before returning.
+// FReadline reads a single line of text from f, a file associated with an open
+// terminal, with echo disabled. The line is returned line without its trailing
+// newline and echo is (re)enabled before returning.
 func FReadline(f *os.File) (string, error) {
 	fd := f.Fd()
 	if err := echo.Disable(fd); err != nil {
