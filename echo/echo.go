@@ -5,61 +5,31 @@
 // both cgo and supply those functions.
 package echo
 
-/*
-#include <unistd.h>
-#include <termios.h>
-*/
-import "C"
 import (
 	"syscall"
 
 	"golang.org/x/sys/unix"
 )
 
-// isatty reports whether desriptor fd is a TTY.  In case of error, the answer
-// is assumed to be false.
-func isatty(fd uintptr) bool { return C.isatty(C.int(fd)) > 0 }
-
-func tcgetattr(fd uintptr) (*C.struct_termios, error) {
-	var info C.struct_termios
-	if ec, err := C.tcgetattr(C.int(fd), &info); ec < 0 {
-		return nil, err
-	}
-	return &info, nil
-}
-
-func tcsetattr(fd uintptr, info *C.struct_termios) error {
-	if ec, err := C.tcsetattr(C.int(fd), C.int(unix.TCSAFLUSH), info); ec < 0 {
-		return err
-	}
-	return nil
-}
-
 const termBits = syscall.ECHO | syscall.ECHOE | syscall.ECHOK
 
 // Enable enables echo for the terminal connected to descriptor fd.
 func Enable(fd uintptr) error {
-	if !isatty(fd) {
-		return syscall.ENOTTY
-	}
-	info, err := tcgetattr(fd)
+	t, err := unix.IoctlGetTermios(int(fd), tcGet)
 	if err != nil {
 		return err
 	}
-	info.c_lflag |= termBits | syscall.ECHONL
-	return tcsetattr(fd, info)
+	t.Lflag |= termBits | syscall.ECHONL
+	return unix.IoctlSetTermios(int(fd), tcSet, t)
 }
 
 // Disable disables echo for the terminal connected to descriptor fd.
 func Disable(fd uintptr) error {
-	if !isatty(fd) {
-		return syscall.ENOTTY
-	}
-	info, err := tcgetattr(fd)
+	t, err := unix.IoctlGetTermios(int(fd), tcGet)
 	if err != nil {
 		return err
 	}
-	info.c_lflag &^= termBits
-	info.c_lflag |= syscall.ECHONL
-	return tcsetattr(fd, info)
+	t.Lflag &^= termBits
+	t.Lflag |= syscall.ECHONL
+	return unix.IoctlSetTermios(int(fd), tcSet, t)
 }

@@ -3,5 +3,7 @@
 http://godoc.org/bitbucket.org/creachadair/getpass
 
 This repository provides a Go package to read passwords from the terminal with
-echo disabled. This implementation uses cgo, and relies on the POSIX terminal
-API functions defined in `<termios.h>` on systems that support them.
+echo disabled. This implementation relies on the [x/sys/unix][unix] package to
+read and write terminal settings.
+
+[unix]: http://godoc.org/golang.org/x/sys/unix
