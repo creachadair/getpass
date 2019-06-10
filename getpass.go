@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"bitbucket.org/creachadair/getpass/echo"
+	"github.com/creachadair/getpass/echo"
 )
 
 // TTY opens the controlling terminal of the current process if possible.

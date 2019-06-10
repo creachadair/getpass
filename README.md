@@ -1,6 +1,6 @@
 # getpass
 
-http://godoc.org/bitbucket.org/creachadair/getpass
+http://godoc.org/github.com/creachadair/getpass
 
 This repository provides a Go package to read passwords from the terminal with
 echo disabled. This implementation relies on the [x/sys/unix][unix] package to

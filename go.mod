@@ -1,3 +1,3 @@
-module bitbucket.org/creachadair/getpass
+module github.com/creachadair/getpass
 
-require golang.org/x/sys v0.0.0-20190531175056-4c3a928424d2
+require golang.org/x/sys v0.0.0-20190610081024-1e42afee0f76

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/creachadair/getpass"
+	"github.com/creachadair/getpass"
 )
 
 var prompt = flag.String("prompt", "Password: ", "Prompt string")
