@@ -1,8 +1,8 @@
 // Package echo allows enabling and disabling terminal echo.
 //
-// This implementation is based on the POSIX tcgetattr and tcsetattr functions,
-// which are accessed via cgo, so it will only work on systems that support
-// both cgo and supply those functions.
+// This implementation is based on the POSIX tcgetattr and tcsetattr
+// operations, so it will only work on systems that support them via the
+// ioctl(2) interface.
 package echo
 
 import (
