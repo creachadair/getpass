@@ -19,7 +19,8 @@ func Enable(fd uintptr) error {
 	if err != nil {
 		return err
 	}
-	t.Lflag |= termBits | syscall.ECHONL
+	t.Lflag |= termBits
+	t.Lflag &^= syscall.ECHONL
 	return unix.IoctlSetTermios(int(fd), tcSet, t)
 }
 
