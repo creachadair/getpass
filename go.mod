@@ -1,5 +1,5 @@
 module github.com/creachadair/getpass
 
-go 1.14
+go 1.17
 
-require golang.org/x/sys v0.0.0-20210326220804-49726bf1d181
+require golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359
