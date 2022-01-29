@@ -2,4 +2,4 @@ module github.com/creachadair/getpass
 
 go 1.17
 
-require golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
+require golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27
