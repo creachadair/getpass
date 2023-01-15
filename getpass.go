@@ -3,31 +3,25 @@
 package getpass
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 
-	"github.com/creachadair/getpass/echo"
+	"golang.org/x/term"
 )
 
 // TTY opens the controlling terminal of the current process if possible.
 func TTY() (*os.File, error) { return os.OpenFile("/dev/tty", os.O_RDWR, 0644) }
 
-// FReadline reads a single line of text from f, a file associated with an open
+// freadline reads a single line of text from f, a file associated with an open
 // terminal, with echo disabled. The line is returned line without its trailing
 // newline and echo is (re)enabled before returning.
-func FReadline(f *os.File) (string, error) {
+func freadline(f *os.File) (string, error) {
 	fd := f.Fd()
-	if err := echo.Disable(fd); err != nil {
+	pw, err := term.ReadPassword(int(fd))
+	if err != nil {
 		return "", err
 	}
-	defer echo.Enable(fd)
-
-	rd := bufio.NewScanner(f)
-	if !rd.Scan() {
-		return "", rd.Err()
-	}
-	return rd.Text(), nil
+	return string(pw), nil
 }
 
 // Readline is a shorthand for FReadline using the TTY.
@@ -37,7 +31,7 @@ func Readline() (string, error) {
 		return "", err
 	}
 	defer f.Close()
-	return FReadline(f)
+	return freadline(f)
 }
 
 // Prompt prints the prompt string to TTY then calls FReadline on it.
@@ -48,5 +42,5 @@ func Prompt(prompt string) (string, error) {
 	}
 	defer f.Close()
 	fmt.Fprint(f, prompt)
-	return FReadline(f)
+	return freadline(f)
 }
