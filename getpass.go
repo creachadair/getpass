@@ -40,7 +40,10 @@ func Prompt(prompt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func() {
+		f.WriteString("\n")
+		f.Close()
+	}()
 	fmt.Fprint(f, prompt)
 	return freadline(f)
 }
