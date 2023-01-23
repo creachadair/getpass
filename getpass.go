@@ -24,7 +24,9 @@ func freadline(f *os.File) (string, error) {
 	return string(pw), nil
 }
 
-// Readline is a shorthand for FReadline using the TTY.
+// Readline reads a single line of text from the TTY of the current process,
+// with echo disabled. The line is returned without its trailling newline and
+// echo is re-enabled before returning.
 func Readline() (string, error) {
 	f, err := TTY()
 	if err != nil {
@@ -34,7 +36,8 @@ func Readline() (string, error) {
 	return freadline(f)
 }
 
-// Prompt prints the prompt string to TTY then calls FReadline on it.
+// Prompt prints the prompt string to the TTY of the current process and then
+// calls Readline to read a line of text with echo disabled.
 func Prompt(prompt string) (string, error) {
 	f, err := TTY()
 	if err != nil {
