@@ -1,3 +1,0 @@
-cleanup() {
-    go install github.com/creachadair/getpass/cmd/getpass
-}
