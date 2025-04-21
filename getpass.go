@@ -10,7 +10,7 @@ import (
 )
 
 // TTY opens the controlling terminal of the current process if possible.
-func TTY() (*os.File, error) { return os.OpenFile("/dev/tty", os.O_RDWR, 0644) }
+func TTY() (*os.File, error) { return os.OpenFile(ttyName, os.O_RDWR, 0644) }
 
 // freadline reads a single line of text from f, a file associated with an open
 // terminal, with echo disabled. The line is returned line without its trailing
