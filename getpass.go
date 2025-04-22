@@ -25,25 +25,31 @@ func freadline(f *os.File) (string, error) {
 // with echo disabled. The line is returned without its trailling newline and
 // echo is re-enabled before returning.
 func Readline() (string, error) {
-	f, err := TTY()
+	pw, err := ttyIn()
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
-	return freadline(f)
+	defer pw.Close()
+	return freadline(pw)
 }
 
 // Prompt prints the prompt string to the TTY of the current process and then
 // calls Readline to read a line of text with echo disabled.
 func Prompt(prompt string) (string, error) {
-	f, err := TTY()
+	pr, err := ttyOut()
 	if err != nil {
 		return "", err
 	}
+	pw, err := ttyIn()
+	if err != nil {
+		pr.Close()
+		return "", err
+	}
 	defer func() {
-		f.WriteString("\n")
-		f.Close()
+		pr.WriteString("\n")
+		pr.Close()
+		pw.Close()
 	}()
-	fmt.Fprint(f, prompt)
-	return freadline(f)
+	fmt.Fprint(pr, prompt)
+	return freadline(pw)
 }
