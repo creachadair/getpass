@@ -8,24 +8,26 @@ import (
 	"log"
 
 	"github.com/creachadair/getpass"
+	"github.com/creachadair/getpass/gui"
 )
 
 var (
-	prompt    = flag.String("prompt", "Password: ", "Prompt string")
-	doConfirm = flag.Bool("confirm", false, "Prompt for confirmation")
-	doGUI     = flag.Bool("gui", false, "Prompt via the GUI (if available)")
+	prompt    = flag.String("prompt", "", "Prompt string")
+	doConfirm = flag.Bool("confirm", false, "Require confirmation (repeat response)")
+	doGUI     = flag.Bool("gui", false, "Prompt via a GUI (if available)")
 )
 
 var errNoGUI = errors.New("no GUI support is available")
 
 func main() {
 	flag.Parse()
-	pw, err := call(*prompt)
+	label := cmp.Or(*prompt, "Passphrase: ")
+	pw, err := call(label)
 	if err != nil {
 		log.Fatalf("getpass: %v", err)
 	}
 	if *doConfirm {
-		cf, err := call("(confirm) " + *prompt)
+		cf, err := call("(confirm) " + label)
 		if err != nil {
 			log.Fatalf("get confirmation: %v", err)
 		} else if cf != pw {
@@ -37,7 +39,7 @@ func main() {
 
 func call(prompt string) (string, error) {
 	if *doGUI {
-		pw, err := guiPrompt(cmp.Or(prompt, "Passphrase:"))
+		pw, err := gui.Prompt(prompt)
 		if err == nil {
 			return pw, nil
 		} else if !errors.Is(err, errNoGUI) {
