@@ -21,6 +21,9 @@ var errNoGUI = errors.New("no GUI support is available")
 
 func main() {
 	flag.Parse()
+	if flag.NArg() != 0 {
+		log.Fatalf("Extra arguments after command: %q", flag.Args())
+	}
 	label := cmp.Or(*prompt, "Passphrase: ")
 	pw, err := call(label)
 	if err != nil {
