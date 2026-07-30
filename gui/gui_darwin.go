@@ -5,16 +5,25 @@ package gui
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
 
 func guiPrompt(prompt string) (string, error) {
-	pp, err := promptViaPinentry(prompt)
-	if errors.Is(err, ErrNoGUI) {
+	if canProbablySeeUI() {
 		return promptViaApplescript(prompt)
 	}
-	return pp, err
+	return promptViaPinentry(prompt)
+}
+
+func canProbablySeeUI() bool {
+	// If there is no TERM_PROGRAM set at all, it often means the program was
+	// started by launchd or some other program running in the UI.
+	// Otherwise, guess based on the name. TODO(creachadair): Maybe include other
+	// popular GUI terminal substitutions here.
+	tp, ok := os.LookupEnv("TERM_PROGRAM")
+	return !ok || strings.HasPrefix(strings.ToLower(tp), "apple_terminal")
 }
 
 func promptViaApplescript(prompt string) (string, error) {
