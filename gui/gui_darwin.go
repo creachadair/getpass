@@ -10,6 +10,14 @@ import (
 )
 
 func guiPrompt(prompt string) (string, error) {
+	pp, err := promptViaPinentry(prompt)
+	if errors.Is(err, ErrNoGUI) {
+		return promptViaApplescript(prompt)
+	}
+	return pp, err
+}
+
+func promptViaApplescript(prompt string) (string, error) {
 	cmd := exec.Command("osascript", "-s", "ho")
 	cmd.Stdin = strings.NewReader(fmt.Sprintf(`display dialog %q default answer "" hidden answer true`, prompt))
 	raw, err := cmd.Output()
