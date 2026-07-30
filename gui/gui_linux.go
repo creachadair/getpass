@@ -7,22 +7,20 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"os/exec"
 	"strings"
 )
 
 func guiPrompt(prompt string) (string, error) {
-	desk, ok := os.LookupEnv("XDG_CURRENT_DESKTOP")
-	if !ok || !strings.HasSuffix(strings.ToLower(desk), "gnome") {
+	// Execute the "pinentry" binary from the GPG package.
+	// If we can't find a pinentry binary, assume it is not possible to prompt.
+	// Otherwise, trust that it knows what to do (i.e., GUI vs. curses).
+	ppath, err := exec.LookPath("pinentry")
+	if err != nil || ppath == "" {
 		return "", ErrNoGUI
-
-		// TODO: Handle KDE too, probably. It is possible the below just works,
-		// but I don't have a KDE setup to test it.
 	}
 
-	// Execute the "pinentry" binary from the GPG package.
-	// This speaks the Assuan text protocol on stdio.
+	// The pinentry tool speaks the Assuan text protocol on stdio.
 	// For our purposes, we just want to set a prompt and then fetch a PIN.
 	// That is, we expect this interaction between us (C) and pinentry (S):
 	//
@@ -39,7 +37,7 @@ func guiPrompt(prompt string) (string, error) {
 	fmt.Fprintf(&req, "SETPROMPT %s\n", esc.Replace(prompt))
 	req.WriteString("GETPIN\nBYE\n")
 
-	cmd := exec.Command("pinentry")
+	cmd := exec.Command(ppath, "--ttyname=/dev/tty")
 	cmd.Stdin = &req
 	rsp, err := cmd.Output()
 	if err != nil {
