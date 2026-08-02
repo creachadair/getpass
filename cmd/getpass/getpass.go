@@ -3,45 +3,56 @@ package main
 import (
 	"cmp"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/creachadair/command"
+	"github.com/creachadair/flax"
 	"github.com/creachadair/getpass"
 	"github.com/creachadair/getpass/gui"
 )
 
-var (
-	prompt    = flag.String("prompt", "", "Prompt string")
-	doConfirm = flag.Bool("confirm", false, "Require confirmation (repeat response)")
-	doGUI     = flag.Bool("gui", false, "Prompt via a GUI (if available)")
-)
+var flags struct {
+	Prompt  string `flag:"prompt,Prompt string"`
+	Confirm bool   `flag:"confirm,Require confirmation (repeat response)"`
+	GUI     bool   `flag:"gui,Prompt via a GUI (if available)"`
+}
 
 var errNoGUI = errors.New("no GUI support is available")
 
 func main() {
-	flag.Parse()
-	if flag.NArg() != 0 {
-		log.Fatalf("Extra arguments after command: %q", flag.Args())
+	root := &command.C{
+		Name:     command.ProgramName(),
+		Help:     `Prompt the user for a passphrase.`,
+		SetFlags: command.Flags(flax.MustBind, &flags),
+		Run: command.Adapt(func(env *command.Env) error {
+			label := cmp.Or(flags.Prompt, "Passphrase: ")
+			pw, err := call(label)
+			if err != nil {
+				log.Fatalf("getpass: %v", err)
+			}
+			if flags.Confirm {
+				cf, err := call("(confirm) " + label)
+				if err != nil {
+					return fmt.Errorf("get confirmation: %w", err)
+				} else if cf != pw {
+					return errors.New("values do not match")
+				}
+			}
+			fmt.Println(pw)
+			return nil
+		}),
+		Commands: []*command.C{
+			command.HelpCommand(nil),
+			command.VersionCommand(),
+		},
 	}
-	label := cmp.Or(*prompt, "Passphrase: ")
-	pw, err := call(label)
-	if err != nil {
-		log.Fatalf("getpass: %v", err)
-	}
-	if *doConfirm {
-		cf, err := call("(confirm) " + label)
-		if err != nil {
-			log.Fatalf("get confirmation: %v", err)
-		} else if cf != pw {
-			log.Fatal("Values do not match")
-		}
-	}
-	fmt.Println(pw)
+	command.RunOrFail(root.NewEnv(nil), os.Args[1:])
 }
 
 func call(prompt string) (string, error) {
-	if *doGUI {
+	if flags.GUI {
 		pw, err := gui.Prompt(prompt)
 		if err == nil {
 			return pw, nil
