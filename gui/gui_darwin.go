@@ -18,6 +18,9 @@ func guiPrompt(prompt string) (string, error) {
 }
 
 func canProbablySeeUI() bool {
+	if _, ok := os.LookupEnv("SSH_CONNECTION"); ok {
+		return false
+	}
 	// If there is no TERM_PROGRAM set at all, it often means the program was
 	// started by launchd or some other program running in the UI.
 	// Otherwise, guess based on the name. TODO(creachadair): Maybe include other
