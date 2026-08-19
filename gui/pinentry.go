@@ -41,15 +41,15 @@ func promptViaPinentry(prompt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var result string
+	var result strings.Builder
 	for line := range strings.SplitSeq(string(rsp), "\n") {
 		if tail, ok := strings.CutPrefix(line, "D "); ok {
-			result += unescape(tail) // it is possible, though unlikely, to get multiple D lines
+			result.WriteString(unescape(tail)) // it is possible, though unlikely, to get multiple D lines
 		} else if _, ok := strings.CutPrefix(line, "ERR "); ok {
 			return "", errors.New("user cancelled request") // probably
 		}
 	}
-	return result, nil
+	return result.String(), nil
 }
 
 var esc = strings.NewReplacer(
